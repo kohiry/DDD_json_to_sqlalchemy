@@ -13,6 +13,11 @@ The simple proj.
 
 ### How to set up?
 1) Change .env.example to .env (look to env dir)
-2) `make up` (see more command in Makefile)
+2) Install docker to yur system
+3) `make up` (see more command in Makefile)
+
+
+## What this web service do? (could :^D)
+![graphs](graphs.png)
 
 

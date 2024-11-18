@@ -3,14 +3,12 @@ from abc import ABCMeta, abstractmethod
 
 __all__ = ["BaseServer"]
 
-from app.core.common import BaseRouter
-
 
 class BaseServer(metaclass=ABCMeta):
     """The base abstract class."""
 
     __app: object
-    __routers: list[BaseRouter]
+    __routers: list
 
     @abstractmethod
     def _add_routes(self):
