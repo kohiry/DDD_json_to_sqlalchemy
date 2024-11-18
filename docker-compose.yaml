@@ -1,0 +1,50 @@
+services:
+  api:
+    build:
+      dockerfile: docker/api/Dockerfile
+      context: .
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    command: sh -c "python3 -B -m src.main"
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    networks:
+      - api-network
+
+  migrations:
+    build:
+      context: .
+      dockerfile: docker/migrations/Dockerfile
+    volumes:
+      - ./src/infrastructure/database/migrations:/migrations/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "alembic upgrade head"
+    restart: on-failure
+    networks:
+      - api-network
+
+  postgres:
+    image: postgres:14.2
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL",
+              "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h ${POSTGRES_HOST} -p ${POSTGRES_PORT}"]
+      interval: 10s  # Пауза между проверками
+      retries: 5     # Количество попыток до того, как контейнер будет считаться нездоровым
+      start_period: 30s  # Время ожидания после старта контейнера до начала проверок
+      timeout: 5s  # Таймаут для каждой проверки
+    expose:
+      - "${POSTGRES_PORT}"
+    networks:
+      - api-network
+
+networks:
+  api-network:
