@@ -16,6 +16,11 @@ class CargoSchema(BaseCargoSchema):
     cargo_type: str
     rate: str
 
+class GetCalculateSchema(BaseSchema):
+    date: date
+    cargo_type: str
+    cost: str
+
 
 class GetTariffSchema(BaseTariffSchema):
     date: date
@@ -39,6 +44,5 @@ class DeleteTariffSchema(GetTariffSchema):
     pass
 
 
-class CalculateTariff(BaseTariffSchema):
-    date: date
-    cost: float
+class CalculatedTariff(BaseTariffSchema):
+    new_cost: float

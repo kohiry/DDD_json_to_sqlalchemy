@@ -1,11 +1,13 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import delete, update
+from sqlalchemy import delete, update, desc
+from sqlalchemy.orm import joinedload
 
 from src.core import get_logger
 from src.domain.models.models import TariffModel, CargoModel
-from src.domain.schema.tariffs import TariffSchema, CreateTariffSchema, GetTariffSchema
+from src.domain.schema.tariffs import TariffSchema, CreateTariffSchema, GetTariffSchema, \
+    GetCalculateSchema, CargoSchema
 
 logger = get_logger()
 
@@ -27,7 +29,7 @@ class TariffRepository:
         return blog_message is not None
 
     async def create(
-            self, cmd: list[TariffSchema], session: AsyncSession
+            self, cmd: list[CreateTariffSchema], session: AsyncSession
     ) -> list[TariffSchema] | None:
         try:
             async with session.begin():
@@ -61,6 +63,27 @@ class TariffRepository:
             # В случае ошибки откатываем транзакцию
             await session.rollback()
             return None
+
+
+    @staticmethod
+    async def get_best_tariff(
+        query: GetCalculateSchema,
+        session: AsyncSession,
+    ):
+        stmt = (
+            select(CargoModel)
+            .join(TariffModel)
+            .where(TariffModel.date <= query.date,
+                   CargoModel.cargo_type == query.cargo_type)
+            .order_by(desc(TariffModel.date))
+            .limit(1)
+        )
+        result = await session.execute(stmt)
+        cargo = result.scalar_one_or_none()
+        if not cargo:
+            return None
+
+        return CargoSchema.model_validate(cargo)
 
     # @staticmethod
     # async def _check_exist_by_title_content_index(

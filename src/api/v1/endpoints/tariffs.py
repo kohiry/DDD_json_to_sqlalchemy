@@ -1,6 +1,4 @@
 import json
-from asyncio import gather
-
 from fastapi import APIRouter, Depends, UploadFile, File
 from fastapi.exceptions import HTTPException
 from fastapi.params import Depends
@@ -12,9 +10,9 @@ __all__ = [
     "tariff_router",
 ]
 from src.domain.repository.tariff_repo import TariffRepository
-from src.domain.schema import CreateTariffSchema
+from src.domain.schema.tariffs import GetCalculateSchema, CalculatedTariff
 from src.infrastructure.database.session import get_async_session
-from src.services.tariff_service import cast_from_json_to_schema
+from src.services.tariff_service import cast_from_json_to_schema, new_cost
 
 logger = get_logger()
 repository: TariffRepository = TariffRepository()
@@ -25,7 +23,7 @@ tariff_router = APIRouter(prefix="/traffic", tags=["Traffic"])
 async def post(
         file: UploadFile = File(...),
         session: AsyncSession = Depends(get_async_session),
-):
+) -> dict:
     """
         Если бы я делал через брокер сообщений паттерн простой:
             1) тут я буду сохранять файл в контейнере с прокинутым volume
@@ -46,6 +44,22 @@ async def post(
         raise HTTPException(status_code=422, detail=f"Validation error: {str(e)}")
     await repository.create(validated_data, session)
     return {'status': 'ok'}
+
+
+@tariff_router.post("/calculate")
+async def calculate(
+    query: GetCalculateSchema,
+    session: AsyncSession = Depends(get_async_session)
+) -> CalculatedTariff:
+    tariffs = await repository.get_best_tariff(query, session)
+    if tariffs is None:
+        logger.info(f"No match for: {query}")
+        raise HTTPException(status_code=422, detail=f"No match for query: {query}")
+    try:
+        cost = new_cost(query.cost, tariffs.rate)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=f"Validation error: {str(e)}")
+    return CalculatedTariff(new_cost=cost)
 
 #
 # @posts_router.get("/")
