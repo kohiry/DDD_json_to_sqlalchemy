@@ -1,16 +1,14 @@
-from app.pkg.schema.blog import (
-    PostsSchema,
-    CreatePostsSchema,
-    UpdatePostsSchema,
-    GetPostsByIDSchema,
-    DeletePostsByIDSchema,
+from src.domain.schema.tariffs import (
+CreateTariffSchema,
+UpdateTariffSchema,
+DeleteTariffByIDSchema,
+GetTariffByIDSchema
 )
 
+
 __all__ = [
-    # Posts Schemas
-    "PostsSchema",
-    "CreatePostsSchema",
-    "UpdatePostsSchema",
-    "GetPostsByIDSchema",
-    "DeletePostsByIDSchema",
+    GetTariffByIDSchema,
+    DeleteTariffByIDSchema,
+    UpdateTariffSchema,
+    CreateTariffSchema
 ]

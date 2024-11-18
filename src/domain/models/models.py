@@ -1,27 +1,35 @@
-from sqlalchemy import Integer, String, Index
-from sqlalchemy.orm import mapped_column, Mapped
-
-from app.domain.models.base import BaseORM
-from app.domain.models.mixins import TimestampMixin
+from sqlalchemy import Integer, Float, String, Date, ForeignKey
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from src.infrastructure.database.base import Base
 
 
-__all__ = [
-    "PostsModel",
-]
-
-
-class PostsModel(BaseORM, TimestampMixin):
-    __tablename__ = "posts"
-
-    __table_args__ = (Index("idx_title_content", "title", "content"),)
+class TariffModel(Base):
+    __tablename__ = "tariff_table"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String, nullable=False)
-    content: Mapped[str] = mapped_column(String, nullable=False)
-    views: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    date: Mapped[Date] = mapped_column(Date, nullable=False, unique=True)
+
+    # Связь с CargoModel (один тариф может иметь несколько грузов)
+    cargos: Mapped[list["CargoModel"]] = relationship(
+        "CargoModel", back_populates="tariff", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
-        return (
-            f"<PostsModel(id={self.id}, title='{self.title}',"
-            f" created_at={self.created_at}, updated_at={self.updated_at})>"
-        )
+        return f"<TariffModel(id={self.id}, date={self.date})>"
+
+
+class CargoModel(Base):
+    __tablename__ = "cargo_table"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    cargo_type: Mapped[str] = mapped_column(String, nullable=False)
+    rate: Mapped[float] = mapped_column(Float, nullable=False)
+
+    # Внешний ключ к TariffModel
+    tariff_id: Mapped[int] = mapped_column(Integer, ForeignKey("tariff_table.id", ondelete="CASCADE"))
+
+    # Связь с TariffModel (многие грузы относятся к одному тарифу)
+    tariff: Mapped[TariffModel] = relationship("TariffModel", back_populates="cargos")
+
+    def __repr__(self):
+        return f"<CargoModel(id={self.id}, cargo_type='{self.cargo_type}', rate={self.rate})>"

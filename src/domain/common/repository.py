@@ -1,14 +1,13 @@
 from abc import ABCMeta, abstractmethod
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.common import BaseSchema
 
 
 __all__ = [
     "BaseRepository",
 ]
 
-from app.core.common.model import BaseModel
+from src.domain.common import BaseModel, BaseSchema
 
 
 class BaseRepository(metaclass=ABCMeta):
@@ -19,6 +18,10 @@ class BaseRepository(metaclass=ABCMeta):
         self, query: BaseSchema, session: AsyncSession
     ) -> BaseSchema | None:
         """Abstract method for getting by name."""
+        pass
+
+    @abstractmethod
+    async def get_all(self, session: AsyncSession) -> [BaseSchema]:
         pass
 
     @abstractmethod
