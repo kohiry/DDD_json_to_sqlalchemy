@@ -16,3 +16,7 @@ The simple proj.
 2) `make up` (see more command in Makefile)
 
 
+## What this web service do?
+![graphs](graphs.png)
+
+
