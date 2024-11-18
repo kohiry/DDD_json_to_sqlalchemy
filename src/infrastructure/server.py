@@ -1,21 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.internal.routers import PostsRouter
-from app.core.common import BaseServer, BaseRouter
+from src.core import settings
+from src.api import api_v1_router
+from src.domain.common import BaseServer
 
 
 class FastAPIServer(BaseServer):
     __app: FastAPI = FastAPI()
-    __routers: list[type[BaseRouter]] = [
-        PostsRouter,
+    __routers: list[APIRouter] = [
+        api_v1_router,
     ]
 
     def _add_routes(self):
         for router in self.__routers:
-            self.__app.include_router(router.get_routers())
+            self.__app.include_router(router)
 
     def _add_cors(self):
         self.__app.add_middleware(

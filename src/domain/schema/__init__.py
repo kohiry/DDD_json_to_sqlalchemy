@@ -1,14 +1,12 @@
 from src.domain.schema.tariffs import (
-CreateTariffSchema,
-UpdateTariffSchema,
-DeleteTariffByIDSchema,
-GetTariffByIDSchema
+    CreateTariffSchema,
+    UpdateTariffSchema,
+    CargoSchema
 )
 
 
 __all__ = [
-    GetTariffByIDSchema,
-    DeleteTariffByIDSchema,
-    UpdateTariffSchema,
-    CreateTariffSchema
+    "CargoSchema",
+    "UpdateTariffSchema",
+    "CreateTariffSchema",
 ]

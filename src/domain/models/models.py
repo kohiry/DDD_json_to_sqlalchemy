@@ -23,7 +23,7 @@ class CargoModel(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     cargo_type: Mapped[str] = mapped_column(String, nullable=False)
-    rate: Mapped[float] = mapped_column(Float, nullable=False)
+    rate: Mapped[str] = mapped_column(String, nullable=False)
 
     # Внешний ключ к TariffModel
     tariff_id: Mapped[int] = mapped_column(Integer, ForeignKey("tariff_table.id", ondelete="CASCADE"))

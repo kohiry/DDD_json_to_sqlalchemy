@@ -2,11 +2,6 @@ from datetime import date
 from src.domain.common import BaseSchema
 
 
-__all__ = [
-    "TariffSchema",
-]
-
-
 class BaseTariffSchema(BaseSchema):
     pass
 
@@ -19,19 +14,21 @@ class BaseCargoSchema(BaseSchema):
 
 class CargoSchema(BaseCargoSchema):
     cargo_type: str
-    rate: float
+    rate: str
 
 
-class TariffSchema(BaseTariffSchema):
+class GetTariffSchema(BaseTariffSchema):
     date: date
+
+
+class TariffSchema(GetTariffSchema):
     cargos: list[CargoSchema]
 
 
 class CreateTariffSchema(TariffSchema):
     pass
 
-class GetTariffSchema(BaseTariffSchema):
-    date: date
+
 
 
 class UpdateTariffSchema(TariffSchema):
